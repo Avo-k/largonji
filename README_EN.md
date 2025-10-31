@@ -1,19 +1,16 @@
-# 🥩 Largonji
+# 🔪 Largonji
 
 [![PyPI version](https://badge.fury.io/py/largonji.svg)](https://badge.fury.io/py/largonji)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> _« Louchébem, c'est du boucher ! »_ — Hybrid French ↔ Louchébem converter
+> _« Larlépem-vous louchébem? »_ — Hybrid French ↔ Louchébem converter
 
 **[🇫🇷 Version française / French version →](README.md)**
 
 A modern Python converter to transform French into **louchébem**, the historical slang of Parisian butchers.
 
-### 📚 Largonji vs Louchébem
-
-- **[Largonji](https://fr.wikipedia.org/wiki/Largonji)** ([English Wikipedia](https://en.wikipedia.org/wiki/Louchébem)): a family of linguistic deformation techniques used in French slang (including louchébem, javanais, and other variants)
-- **[Louchébem](https://fr.wikipedia.org/wiki/Largonji#Définition)**: the main variant of largonji, created and used by Parisian butchers
+**[Louchébem](https://fr.wikipedia.org/wiki/Largonji#Définition)** is the main variant of **[largonji](https://fr.wikipedia.org/wiki/Largonji)** ([English Wikipedia](https://en.wikipedia.org/wiki/Louchébem)), a family of linguistic deformation techniques used in French slang (including also javanais and other variants).
 
 This package implements **louchébem** with a **hybrid approach**: dictionary of authentic historical terms + algorithmic transformation for unknown words.
 
