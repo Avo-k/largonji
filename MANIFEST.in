@@ -1,0 +1,16 @@
+# Include documentation
+include README.md
+include README_EN.md
+include LICENSE
+
+# Include source references
+recursive-include sources *.txt
+
+# Include tests
+include tests.py
+
+# Exclude development artifacts
+exclude main.py
+recursive-exclude deprec_dev_documentation *
+recursive-exclude deprec_dev_demos *
+

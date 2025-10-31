@@ -1,0 +1,50 @@
+[project]
+name = "largonji"
+version = "0.1.0"
+description = "Convertisseur hybride français ↔ louchébem (largonji des bouchers) — Hybrid French to louchébem (butcher's slang) converter"
+readme = "README.md"
+license = { text = "WTFPL" }
+authors = [
+    { name = "Avo-k" }
+]
+keywords = [
+    "french",
+    "louchebem",
+    "largonji",
+    "slang",
+    "argot",
+    "butcher",
+    "boucher",
+    "language",
+    "nlp",
+    "transformation"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: Freely Distributable",
+    "Natural Language :: French",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/avok/largonji"
+Repository = "https://github.com/avok/largonji"
+Documentation = "https://github.com/avok/largonji#readme"
+"Bug Tracker" = "https://github.com/avok/largonji/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["largonji"]
