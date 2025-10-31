@@ -37,10 +37,10 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/avok/largonji"
-Repository = "https://github.com/avok/largonji"
-Documentation = "https://github.com/avok/largonji#readme"
-"Bug Tracker" = "https://github.com/avok/largonji/issues"
+Homepage = "https://github.com/Avo-k/largonji"
+Repository = "https://github.com/Avo-k/largonji"
+Documentation = "https://github.com/Avo-k/largonji#readme"
+"Bug Tracker" = "https://github.com/Avo-k/largonji/issues"
 
 [build-system]
 requires = ["hatchling"]
