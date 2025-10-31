@@ -1,4 +1,4 @@
-# 🔪 Largonji
+# 🔪🥩 largonji
 
 [![PyPI version](https://badge.fury.io/py/largonji.svg)](https://badge.fury.io/py/largonji)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -10,7 +10,7 @@
 
 Un convertisseur Python moderne pour transformer du français en **louchébem**, l'argot historique des bouchers parisiens. 
 
-Le **[louchébem](https://fr.wikipedia.org/wiki/Largonji#Définition)** est la variante principale du **[largonji](https://fr.wikipedia.org/wiki/Largonji)**, une famille de procédés de déformation linguistique utilisés en argot français (incluant aussi le javanais et d'autres variantes).
+Le **[louchébem](https://fr.wikipedia.org/wiki/Largonji#Définition)** est la variante principale du **[largonji](https://fr.wikipedia.org/wiki/Largonji)**, une famille de procédés de déformation linguistique utilisés en argot français (incluant aussi le verlan, le javanais...).
 
 Ce package implémente le **louchébem** avec une approche **hybride** : dictionnaire de termes historiques authentiques + transformation algorithmique pour les mots inconnus.
 
