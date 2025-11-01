@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/largonji.svg)](https://badge.fury.io/py/largonji)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://www.wtfpl.net/)
 
 > _« Larlépem-vous louchébem? »_ — Hybrid French ↔ Louchébem converter
 
@@ -13,19 +13,6 @@ A modern Python converter to transform French into **louchébem**, the historica
 **[Louchébem](https://fr.wikipedia.org/wiki/Largonji#Définition)** is the main variant of **[largonji](https://fr.wikipedia.org/wiki/Largonji)** ([English Wikipedia](https://en.wikipedia.org/wiki/Louchébem)), a family of linguistic deformation techniques used in French slang (including also javanais and other variants).
 
 This package implements **louchébem** with a **hybrid approach**: dictionary of authentic historical terms + algorithmic transformation for unknown words.
-
----
-
-## 📖 Table of Contents
-
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [What is Louchébem?](#-what-is-louchébem)
-- [The Naive Approach](#-the-naive-approach)
-- [Our Implementation Choices](#-our-implementation-choices)
-- [Advanced Configuration](#-advanced-configuration)
-- [Sources & Acknowledgments](#-sources--acknowledgments)
-- [License](#-license)
 
 ---
 
@@ -46,26 +33,22 @@ pip install largonji
 ```python
 from largonji import LouchebemConverter
 
-# Create a converter
+# Create a converter and transform text
 converter = LouchebemConverter()
-
-# Convert a word
-print(converter.convert_text("boucher"))
-# → loucherbem
-
-# Convert a sentence
-print(converter.convert_text("Bonjour monsieur le boucher"))
-# → Lonjourbem lonsieurmic le loucherbem
-
-# With custom configuration
-from largonji import LouchebemConfig
-
-config = LouchebemConfig(
-    preserve_stopwords=False,  # Also transform function words
-    preserve_proper_nouns=False,  # Transform proper nouns
-)
-converter = LouchebemConverter(config=config)
+print(converter.convert_text("Bonjour le boucher"))
+# → Lonjourbem le loucherbem
 ```
+
+---
+
+## 📖 Table of Contents
+
+- [What is Louchébem?](#what-is-louchébem)
+- [The Naive Approach](#the-naive-approach)
+- [Our Implementation Choices](#our-implementation-choices)
+- [Advanced Configuration](#advanced-configuration)
+- [Sources & Acknowledgments](#sources--acknowledgments)
+- [License](#license)
 
 ---
 
@@ -82,7 +65,10 @@ Largonji appeared in the slang of Parisian working classes from the late 18th or
 - **La Lorcefé** (← La Force, a Parisian prison) in Vidocq's Memoirs (1828-1829)
 - **loucherbem** (← boucher, "butcher") attested around 1876
 
-Louchébem is still used in the 21st century in the professional butcher community, particularly in Parisian markets and slaughterhouses.
+Some words from louchébem have entered common French language:
+- **loufoque** (← fou, "crazy") : bizarre, wacky
+- **larfeuille** (← feuille, "leaf/paper", slang for money) : cash, dough
+- **à loilpé** (← à poil, "naked") : in the buff
 
 ### 🎯 The Basic Principle
 
@@ -95,7 +81,7 @@ The louchébem process follows a simple rule:
 **Examples:**
 - **b**oucher → **l**oucher**b**em
 - **j**argon → **l**argon**j**i
-- **p**rix → **l**i**pr**em
+- **p**rix → **l**i**pr**em ("pr" cluster moved together)
 
 ---
 
@@ -138,7 +124,9 @@ Our hybrid implementation solves all these problems! 🎉
 
 ## ✨ Our Implementation Choices
 
-This section details the technical decisions that make this converter high-quality.
+Louchébem was never a standardized language: not all butchers spoke exactly the same slang. Suffixes in particular varied from person to person, and the language evolved deliberately to remain less obvious to outsiders (non-deterministic aspect). Some cases are not really clear in historical sources, notably the treatment of vowel-initial words.
+
+This implementation is therefore based on **deliberate choices**: it relies on available sources and what sounds best. This section details these technical decisions.
 
 ### 1. 📚 Hybrid Approach: Dictionary + Algorithm
 
@@ -159,111 +147,7 @@ converter.convert_text("robot")  # → lobotrem (algorithmic transformation)
 
 ---
 
-### 2. 🎵 Multi-Consonant Clusters
-
-**Problem:** How to handle "prix", "train", "fromage" that start with 2+ consonants?
-
-**Solution:** Extract the **complete cluster** of consonants before the first vowel and move it as a block.
-
-```python
-"prix"    → "p" + "r" + "ix" → l + ix + pr + em → "liprem"
-"train"   → "t" + "r" + "ain" → l + ain + tr + oc → "laintroc"
-"fromage" → "f" + "r" + "omage" → l + omage + fr + é → "lomagefré"
-```
-
-**Technical detail:** Clusters are **always preserved in full**, even if the suffix already contains one of the letters (e.g., "pl" stays "pl", not just "p").
-
----
-
-### 3. 🔤 Vowel-Initial Words
-
-**Problem:** How to transform "entendre", "attention", "orange" that start with a vowel?
-
-**Solution:** Find the **attack consonant** (first consonant cluster **after** the initial vowel sound).
-
-```python
-"entendre"  → "en" (nasal vowel) + "t" (attack) + "endre"
-            → en + l + endre + t + é
-            → "enlendreté"
-
-"attention" → "a" + "tt" → "t" (simplified) + "ention"
-            → a + l + ention + t + em
-            → "alentiontem"
-
-"orange"    → "o" + "r" + "ange"
-            → o + l + ange + r + em
-            → "olangrem"
-```
-
-**Tip:** The code handles nasal vowels ("an", "en", "in", "on", "un") as vowel sounds.
-
----
-
-### 4. 🎯 Weighted Suffixes by Consonant Type
-
-**Problem:** Not all suffixes are equally probable. Historically, certain suffixes match better with certain consonants.
-
-**Solution:** **Weighted random** suffix selection organized by consonant, based on historical usage.
-
-```python
-# Example suffixes for different consonants
-D → dé (35%), dem (25%), doc (5%), dique (5%), ...
-P → pem (30%), puche (25%), poc (15%), pique (5%), ...
-F → fès (35%), foc (20%), fem (15%), fique (10%), ...
-```
-
-Each suffix **already contains its consonant** to ensure phonetic harmony.
-
----
-
-### 5. 🔇 Silent Consonants and Phonetic Adjustments
-
-**Problem:** Written French ≠ spoken French. How to handle silent consonants?
-
-**Solution:** Detection and removal of silent consonants with vowel adjustments.
-
-```python
-"discret"  → discrè + t (silent removed, e→è to preserve sound)
-           → l + iscrè + d + em
-           → "liscrèdem"
-
-"employée" → employé (ée→é, extra 'e' is silent)
-           → e + l + oyé + pl + oc
-           → "emloyéploc"
-
-"parler"   → parlé (er→é, identical sound)
-           → l + arlé + p + em
-           → "larlépem"
-```
-
-**Applied rules:**
-- `-et` → `-è` (discret → discrè)
-- `-ent` → `-en` (moment → momen, 't' is silent)
-- `-er` → `-é` (infinitive verbs)
-- `-ée` → `-é` (extra 'e' is redundant)
-
----
-
-### 6. 🎲 Doubled Consonant Simplification
-
-**Problem:** What to do with "attention" (two 't's)? What if we create duplicates (pl + lé = pllé)?
-
-**Solution:** 
-- **Before moving:** Simplify doubled consonants (tt→t, nn→n, mm→m)
-- **After construction:** Simplify any accidentally created duplicates
-
-```python
-"attention" → "a" + "tt" → "a" + "t" (simplified) + "ention"
-            → alentiontem
-
-"employée"  → "em" + "pl" + "oyé" 
-            → em + l + oyé + pl + lé
-            → emloyépllé → emloyéplé (pll→pl simplified)
-```
-
----
-
-### 7. 🛡️ Selective Word Preservation
+### 2. 🛡️ Selective Word Preservation
 
 **Problem:** Transforming all words makes text unreadable. Which words to preserve?
 
@@ -291,6 +175,110 @@ converter = LouchebemConverter(config=config)
 
 ---
 
+### 3. 🔤 Vowel-Initial Words
+
+**Problem:** How to transform "entendre", "attention", "orange" that start with a vowel?
+
+**Solution:** Find the **attack consonant** (first consonant cluster **after** the initial vowel sound). This is an **implementation choice** — historical sources are not clear on this case. This approach sounds better and allows keeping words not all starting with "l" in a text, which is more pleasant to read.
+
+```python
+"entendre"  → "en" (nasal vowel) + "t" (attack) + "endre"
+            → en + l + endre + t + és
+            → "enlendretès"
+
+"attention" → "a" + "t" (simplified from "tt") + "ention"
+            → a + l + ention + t + és
+            → "alentiontès"
+
+"orange"    → "o" + "r" + "ange"
+            → o + l + ange + r + em
+            → "olangerem"
+```
+
+**Tip:** The code handles nasal vowels ("an", "en", "in", "on", "un") as vowel sounds.
+
+---
+
+### 4. 🎯 Weighted Suffixes by Consonant Type
+
+**Problem:** Not all suffixes are equally probable. Historically, certain suffixes match better with certain consonants.
+
+**Solution:** **Weighted random** suffix selection organized by consonant, based on historical usage.
+
+```python
+# Example suffixes for different consonants
+D → dé (35%), dem (25%), doc (5%), dique (5%), ...
+P → pem (30%), puche (25%), poc (15%), pique (5%), ...
+F → fès (35%), foc (20%), fem (15%), fique (10%), ...
+```
+
+Each suffix **already contains its consonant** to ensure phonetic harmony.
+
+---
+
+### 5. 🎵 Multi-Consonant Clusters
+
+**Problem:** How to handle "prix", "train", "fromage" that start with 2+ consonants?
+
+**Solution:** Extract the **complete cluster** of consonants before the first vowel and move it as a block.
+
+```python
+"prix"    → "p" + "r" + "ix" → l + ix + pr + em → "liprem"
+"train"   → "t" + "r" + "ain" → l + ain + tr + em → "laintrem"
+"fromage" → "f" + "r" + "omage" → l + omaj + fr + é → "lomajfré"
+```
+
+**Technical detail:** Clusters are **always preserved in full**, even if the suffix already contains one of the letters (e.g., "pl" stays "pl", not just "p").
+
+---
+
+### 6. 🔇 Silent Consonants and Phonetic Adjustments
+
+**Problem:** Written French ≠ spoken French. How to handle silent consonants?
+
+**Solution:** Detection and removal of silent consonants with vowel adjustments.
+
+```python
+"discret"  → discrè + t (silent removed, e→è to preserve sound)
+           → l + iscrè + d + oc
+           → "liscrèdoc"
+
+"employée" → employé (ée→é, extra 'e' is silent)
+           → e + l + oyé + pl + é
+           → "emloyéplé"
+
+"parler"   → parlé (er→é, identical sound)
+           → l + arlé + p + em
+           → "larlépem"
+```
+
+**Applied rules:**
+- `-et` → `-è` (discret → discrè)
+- `-ent` → `-en` (moment → momen, 't' is silent)
+- `-er` → `-é` (infinitive verbs)
+- `-ée` → `-é` (extra 'e' is redundant)
+
+---
+
+### 6. 🎲 Doubled Consonant Simplification
+
+**Problem:** What to do with "attention" (two 't's)? What if we create duplicates (pl + lé = pllé)?
+
+**Solution:** 
+- **Before moving:** Simplify doubled consonants (tt→t, nn→n, mm→m)
+- **After construction:** Simplify any accidentally created duplicates
+
+```python
+"attention" → "a" + "tt" → "a" + "t" (simplified) + "ention"
+            → alentiontès
+
+"employée"  → "em" + "pl" + "oyé" 
+            → em + l + oyé + pl + é
+            → emloyéplé
+```
+
+---
+
 ### 8. 📝 Apostrophe Handling (Elisions)
 
 **Problem:** How to handle "l'argot", "d'autre", "j'aime"?
@@ -300,44 +288,14 @@ converter = LouchebemConverter(config=config)
 ```python
 # Special case: l' + word → merge
 "l'argot"   → "largot" → "largomuche" (then check dictionary)
-"l'origine" → "lorigine" → "loriginlé"
+"l'origine" → "lorigine" → "loriginelé"
 
 # Other apostrophes: preserve prefix
-"d'autre" → "d'" + "autre" transformed → "d'autrelé"
-"j'aime"  → "j'" + "aime" transformed → "j'aimelé"
+"d'autre" → "d'" + "autre" transformed → "d'auletrem"
+"j'aime"  → "j'" + "aime" transformed → "j'ailemem"
 ```
 
 **Logic:** Merging with 'l' makes sense since the word will start with 'l' anyway!
-
----
-
-### 9. 🔤 Handling "qu" Cluster
-
-**Problem:** "qu" is a digraph representing the [k] sound. How to handle it?
-
-**Solution:** Treat "qu" as an **indivisible unit** (don't remove the 'u').
-
-```python
-"équivalent" → "é" + "qu" + "ivalen" (ent→en, 't' silent)
-             → é + l + uivalen + qu + em
-             → "éluivalenquem"  # "qu" stays together!
-```
-
-**Phonetics:** "k" and "qu" are treated as variants of the same sound, but the 'u' stays with the 'q'.
-
----
-
-### 10. 💅 Case Preservation
-
-**Problem:** How to preserve capitalization?
-
-**Solution:** Detection and application of original case pattern.
-
-```python
-"Bonjour"  → "Lonjourbem"  (Title case)
-"BOUCHER"  → "BOUCHER"     (All caps = proper noun, preserved)
-"bonjour"  → "lonjourbem"  (lowercase)
-```
 
 ---
 
@@ -359,26 +317,26 @@ config = LouchebemConfig.for_testing(seed=42)
 
 # Custom configuration
 config = LouchebemConfig(
-    # Preservation
-    preserve_stopwords=True,
-    preserve_ultra_common_verbs=True,
-    preserve_interjections=True,
-    preserve_numbers=True,
-    preserve_proper_nouns=True,
-    preserve_acronyms=True,
-    preserve_already_louchebem=True,
+    # Word preservation
+    preserve_stopwords=True,              # Keep "le", "la", "de", "un", etc. (function words)
+    preserve_ultra_common_verbs=True,     # Keep "être", "avoir", "faire", "aller" (readability)
+    preserve_interjections=True,          # Keep "oh", "ah", "hein", "ben" (oral expressions)
+    preserve_numbers=True,                # Keep numbers and dates (123, XIV, 31/12/2023)
+    preserve_proper_nouns=True,           # Keep detected proper nouns (Paris, Marie)
+    preserve_acronyms=True,               # Keep acronyms (SNCF, UNESCO)
+    preserve_already_louchebem=True,      # Don't re-transform words already in louchébem
     
-    # Features
-    enable_apostrophe_merging=True,
-    enable_l_initial_transform=True,
-    enable_silent_consonants=True,
-    enable_doubled_consonant_simplification=True,
-    enable_infinitive_verbs=True,
+    # Transformation features
+    enable_apostrophe_merging=True,       # Merge "l'argot" into "largot" before transformation
+    enable_l_initial_transform=True,      # Transform words starting with "l" (otherwise preserved)
+    enable_silent_consonants=True,        # Remove silent consonants (discret → discrè)
+    enable_doubled_consonant_simplification=True,  # Simplify "tt" → "t", "ll" → "l", etc.
+    enable_infinitive_verbs=True,         # Transform "-er" to "-é" for infinitive verbs
     
-    # Behavior
-    preserve_case=True,
-    preserve_punctuation=True,
-    random_seed=None,  # For random suffixes
+    # General behavior
+    preserve_case=True,                   # Preserve uppercase/lowercase from original text
+    preserve_punctuation=True,            # Keep punctuation intact
+    random_seed=None,                     # Random seed for suffixes (None = random, int = reproducible)
 )
 
 converter = LouchebemConverter(config=config)
@@ -388,31 +346,18 @@ converter = LouchebemConverter(config=config)
 
 ## 📚 Sources & Acknowledgments
 
-This project is based on rigorous historical and linguistic sources:
-
-### Primary Sources
+This project is based on historical and linguistic sources:
 
 - **[Wikipedia - Largonji](https://fr.wikipedia.org/wiki/Largonji)** (French): Detailed article on the history and processes of largonji
-- **[louchebem.fr](https://louchebem.fr/)**: The reference site for louchébem, with translator and examples
-- **Lorédan Larchey** (1858, 1878): _Dictionnaire historique d'argot_ — First recordings of louchébem
-- **Gaston Esnault** (1965): _Dictionnaire historique des argots français_ — Major academic reference
-
-### Additional Sources
-
-- **Albert Dauzat** (1946): _Les argots_ — Analysis of the louchébem process
-- **Le Canard Enchaîné**: Article "Voyage dans les microlangues" — Contemporary state of louchébem
+- **[louchebem.fr](https://louchebem.fr/)**: Reference site for louchébem. We drew inspiration from it, but our implementation differs in several aspects.
 - **Sylvain Macouin**: "À propos du Ladukteurtrès Largonjem" — Analysis of automatic transformation challenges
 - **Jacques Haddad**: Documentation on historical louchébem
-
-### Technical Inspiration
-
-Thanks to the developers of [louchebem.fr](https://louchebem.fr/) for their work in preserving this slang and their online translator which served as a reference.
 
 ---
 
 ## 📄 License
 
-MIT License - see the [LICENSE](LICENSE) file for details.
+WTFPL - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -431,7 +376,7 @@ Contributions are welcome! Feel free to:
 
 **Made with ❤️ to preserve the largonji of the louchébems**
 
-_« Dans le gigot, tout est bon ! »_ (In the leg, everything is good!)
+_« Dans le cochon, tout est bon ! »_
 
 </div>
 
