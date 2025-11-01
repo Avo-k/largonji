@@ -1,6 +1,6 @@
 [project]
 name = "largonji"
-version = "0.1.0"
+version = "0.1.1"
 description = "Convertisseur hybride français ↔ louchébem (largonji des bouchers) — Hybrid French to louchébem (butcher's slang) converter"
 readme = "README.md"
 license = { text = "WTFPL" }
